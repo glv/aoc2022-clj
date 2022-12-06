@@ -1,6 +1,5 @@
 (ns aoc2022.day02
-  (:require [clojure.string :as str])
-  )
+  (:require [clojure.string :as str]))
 
 (defn input-lines []
   (line-seq (java.io.BufferedReader. *in*)))
@@ -50,6 +49,5 @@
   (let [strategies (map #(str/split % #" +") (input-lines))
         scores (map round-score strategies)
         corrected-scores (map corrected-round-score strategies)]
-    (println (reduce + scores)) ; first star
-    (println (reduce + corrected-scores)) ; second star
-  ))
+    (println "star 1:" (reduce + scores))
+    (println "star 2:" (reduce + corrected-scores))))
