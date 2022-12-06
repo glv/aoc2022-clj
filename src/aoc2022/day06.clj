@@ -16,12 +16,6 @@
           pos
           (recur (inc pos), (butlast buf), rest))))))
 
-(defn find-packet-marker [line]
-  (find-marker line 4))
-
-(defn find-message-marker [line]
-  (find-marker line 14))
-
 ;; The challenge is to process just a single line of input, but they
 ;; supplied 5 different sample inputs, so I'm going to process all lines in
 ;; the file and print the result of each as a sequence, to help with
@@ -33,9 +27,11 @@
     result))
 
 (defn run [args]
-  (let [packet-positions (map find-packet-marker input-lines)
-        message-positions (map find-message-marker input-lines)
-        packet-result (collapse-result packet-positions)
-        message-result (collapse-result message-positions)]
-    (println "star 1:" packet-result)
-    (println "star 2:" message-result)))
+  (letfn [(find-packet-marker [line] (find-marker line 4))
+          (find-message-marker [line] (find-marker line 14))]
+    (let [packet-positions (map find-packet-marker input-lines)
+          message-positions (map find-message-marker input-lines)
+          packet-result (collapse-result packet-positions)
+          message-result (collapse-result message-positions)]
+      (println "star 1:" packet-result)
+      (println "star 2:" message-result))))
