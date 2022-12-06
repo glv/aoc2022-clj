@@ -2,10 +2,10 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]))
 
-(defn input-lines []
+(defonce input-lines
   (line-seq (java.io.BufferedReader. *in*)))
 
 (defn run [args]
-  (let [a 1]
+  (let [a line-seq]
     (println "star 1:")
     (println "star 2:"))
