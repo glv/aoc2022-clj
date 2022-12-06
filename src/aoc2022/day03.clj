@@ -35,5 +35,4 @@
                               (map find-badge)
                               (map priorities))]
     (println "star 1:" (reduce + common-priorities))
-    (println "star 2:" (reduce + badge-priorities))
-    ))
+    (println "star 2:" (reduce + badge-priorities))))
