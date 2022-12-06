@@ -1,0 +1,7 @@
+#!/bin/sh
+
+printf -v day "%02d" $1
+
+input=inputs/day${day}.txt
+
+clj -X aoc2022.day${day}/run < $input
