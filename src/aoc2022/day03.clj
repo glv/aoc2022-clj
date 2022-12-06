@@ -2,6 +2,9 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]))
 
+(defonce input-lines
+  (line-seq (java.io.BufferedReader. *in*)))
+
 (defn priority-map [startc endc base]
   (->> (range (int startc) (inc (int endc)))
        (map #(vector (char %)
@@ -11,9 +14,6 @@
 
 (defonce priorities
   (merge (priority-map \a \z 1) (priority-map \A \Z 27)))
-
-(defn input-lines []
-  (line-seq (java.io.BufferedReader. *in*)))
 
 (defn rucksack-compartments [r]
   (let [compartment-size (count r)]
@@ -26,7 +26,7 @@
   (first (set/intersection (set r1) (set r2) (set r3))))
 
 (defn run [args]
-  (let [rucksacks (input-lines)
+  (let [rucksacks input-lines
         common-priorities (->> rucksacks
                                (map rucksack-compartments)
                                (map #(apply common-item %))

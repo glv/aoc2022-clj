@@ -2,7 +2,7 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]))
 
-(defn input-lines []
+(defonce input-lines
   (line-seq (java.io.BufferedReader. *in*)))
 
 (defn add-crate [stacks [stack crate]]
@@ -54,7 +54,7 @@
        (drop 1 (re-matches #"^move (\d+) from (\d+) to (\d+)$" move-line))))
 
 (defn run [args]
-  (let [[start-lines rest] (split-with (comp not str/blank?) (input-lines))
+  (let [[start-lines rest] (split-with (comp not str/blank?) input-lines)
         moves (map parse-move (drop 1 rest))
         stacks (build-stacks start-lines)
         updated-stacks-1 (play-moves stacks moves play-move-1)

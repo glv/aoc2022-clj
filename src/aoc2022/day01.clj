@@ -1,7 +1,7 @@
 (ns aoc2022.day01
   (:require [clojure.string :as str]))
 
-(defn input-lines []
+(defonce input-lines
   (line-seq (java.io.BufferedReader. *in*)))
 
 (defn non-delim-group? [l]
@@ -12,7 +12,7 @@
   (map #(Integer/parseInt %) l))
 
 (defn run [args]
-  (let [elf-groups (->> (input-lines)
+  (let [elf-groups (->> input-lines
                         (partition-by str/blank?)
                         (filter non-delim-group?)
                         (map strs-to-ints))

@@ -2,7 +2,7 @@
   (:require [clojure.set :as set]
             [clojure.string :as str]))
 
-(defn input-lines []
+(defonce input-lines
   (line-seq (java.io.BufferedReader. *in*)))
 
 (defn parse-range [elf-assignment]
@@ -28,7 +28,7 @@
         (full-overlap? [e1 e2]))))
 
 (defn run [args]
-  (let [pairs (->> (input-lines)
+  (let [pairs (->> input-lines
                    (map parse-ranges))
         redundant-pairs (filter full-overlap? pairs)
         overlapping-pairs (filter overlap? pairs)]

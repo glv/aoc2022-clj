@@ -1,7 +1,7 @@
 (ns aoc2022.day02
   (:require [clojure.string :as str]))
 
-(defn input-lines []
+(defonce input-lines
   (line-seq (java.io.BufferedReader. *in*)))
 
 (defonce score-map {"A" 1
@@ -46,7 +46,7 @@
     (+ my-play game-score)))
 
 (defn run [args]
-  (let [strategies (map #(str/split % #" +") (input-lines))
+  (let [strategies (map #(str/split % #" +") input-lines)
         scores (map round-score strategies)
         corrected-scores (map corrected-round-score strategies)]
     (println "star 1:" (reduce + scores))
