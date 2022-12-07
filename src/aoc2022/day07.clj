@@ -5,27 +5,10 @@
 (def input-lines
   (line-seq (java.io.BufferedReader. *in*)))
 
-(defn make-cd-partitioner
-  "Returns a new function for use with partition-by that starts a new
-partition every time a `cd` command is seen."
-  []
-  (let [id (atom 0)]
-    (fn [line]
-      (when (str/starts-with? line "$ cd ")
-        (swap! id inc))
-      @id)))
-
-(defn find-dir-groups [lines]
-  (partition-by (make-cd-partitioner) lines))
-
 (defn build-dir-tree [lines]
   (loop [root {}
          dir-stack [] ; for use with get-in, assoc-in, update-in
          [cmd & lines] lines]
-    (println "root:" root)
-    (println "dir-stack:" dir-stack)
-    (println "cmd:" cmd)
-    (println "lines:" lines)
     (if (nil? cmd)
       root
       (condp #(str/starts-with? %2 %1) cmd
@@ -49,8 +32,7 @@ partition every time a `cd` command is seen."
         ))))
 
 (defn run [args]
-  (let [dir-groups (find-dir-groups input-lines)
-        dir-tree (build-dir-tree input-lines)
-        _ (println "dir groups:" dir-tree)]
+  (let [dir-tree (build-dir-tree input-lines)
+        _ (println "dir-tree:" dir-tree)]
     (println "star 1:")
     (println "star 2:")))
