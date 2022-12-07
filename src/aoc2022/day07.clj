@@ -12,8 +12,11 @@
     (if (nil? cmd)
       root
       (condp #(str/starts-with? %2 %1) cmd
+
         "$ cd /" (recur root [] lines)
+
         "$ cd .." (recur root (vec (butlast dir-stack)) lines)
+
         "$ cd " (let [dir-name (nth (re-matches #"^\$ cd (.+)$" cmd) 1)
                       new-dir-stack (conj dir-stack dir-name)
                       curr-dir (get-in root dir-stack)
@@ -21,10 +24,13 @@
                                  root
                                  (assoc-in root new-dir-stack {}))]
                   (recur new-root new-dir-stack lines))
+
         "$ ls" (recur root dir-stack lines)
+
         "dir " (let [dir-name (nth (re-matches #"^dir (.+) *$" cmd) 1)
                      new-root (assoc-in root (conj dir-stack dir-name) {})]
                  (recur new-root dir-stack lines))
+
         (let [[size-str file-name] (rest (re-matches #"^(\d+) (.+) *$" cmd))
               size (Integer/parseInt size-str)
               new-root (assoc-in root (conj dir-stack file-name) size)]
