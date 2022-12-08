@@ -37,8 +37,39 @@
           (recur new-root dir-stack lines))
         ))))
 
+(defn file-sizes [dir]
+  (reduce + (filter number? (vals dir))))
+
+(defn subdir-name [cur sub]
+  (if (= cur "/")
+    (str cur sub)
+    (str cur "/" sub)))
+
+(defn dir-sizes [name dir level]
+  (let [files (file-sizes dir)
+        dir-keys (filter #(map? (get dir %)) (keys dir))
+        dirs (mapcat #(dir-sizes (subdir-name name %) (get dir %) (inc level)) dir-keys)
+        sum-of-subdirs (reduce + 0 (map second (filter #(= (inc level) (first %)) dirs)))]
+    (conj dirs [level (+ files sum-of-subdirs) name])))
+
+(def fs-size 70000000)
+(def space-needed 30000000)
+
 (defn run [args]
   (let [dir-tree (build-dir-tree input-lines)
-        _ (println "dir-tree:" dir-tree)]
-    (println "star 1:")
-    (println "star 2:")))
+        dirs-and-sizes (dir-sizes "/" dir-tree 0)
+        sizes (map second dirs-and-sizes)
+        candidates (filter #(<= % 100000) sizes)
+
+        used-space (->> dirs-and-sizes
+                        (filter #(= 0 (first %)))
+                        first
+                        second)
+        free-space (- fs-size used-space)
+        must-free (- space-needed free-space)
+        size-of-dir-to-delete (->> sizes
+                                   sort
+                                   (filter #(>= % must-free))
+                                   first)]
+    (println "star 1:" (reduce + candidates))
+    (println "star 2:" size-of-dir-to-delete)))
