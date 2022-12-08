@@ -8,4 +8,4 @@
 (defn run [args]
   (let [a line-seq]
     (println "star 1:")
-    (println "star 2:"))
+    (println "star 2:")))
