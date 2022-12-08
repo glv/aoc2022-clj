@@ -6,6 +6,6 @@
   (line-seq (java.io.BufferedReader. *in*)))
 
 (defn run [args]
-  (let [a line-seq]
+  (let [a input-lines]
     (println "star 1:")
     (println "star 2:")))
