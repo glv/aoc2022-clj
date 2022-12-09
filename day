@@ -2,8 +2,8 @@
 
 printf -v day "%02d" $1
 
-if [ "$2" = "sample" ] ; then
-   input=inputs/day${day}-sample.txt
+if [ "$#" = "2" ] ; then
+   input=inputs/day${day}-$2.txt
 else
    input=inputs/day${day}.txt
 fi
