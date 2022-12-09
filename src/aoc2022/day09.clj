@@ -51,24 +51,24 @@
       second
       [(shift-second sx dx) (shift-second sy dy)])))
 
-(defn move-rest [head others]
-  (loop [f head
+(defn move-knots [knots dir]
+  (loop [f nil
          moved []
-         [s & others] others]
+         [s & others] knots]
 
-    (if (nil? s)
-      (apply list moved)
-      (let [new-s (move-next f s)
-            new-moved (conj moved new-s)]
-        (recur new-s new-moved others)))))
+    (cond
+      (nil? s) (apply list moved)
+      :else (let [new-s (if (nil? f)
+                          (move-head s dir)
+                          (move-next f s))
+                  new-moved (conj moved new-s)]
+              (recur new-s new-moved others)))))
 
 ;; This is where the big change will have to happen
 (defn move-rope-single [{:keys [knots tail-positions]} dir]
-  (let [[head & others] knots
-        new-head (move-head head dir)
-        new-others (move-rest new-head others)
-        new-tail-positions (conj tail-positions (last new-others))]
-    {:knots (conj new-others new-head) :tail-positions new-tail-positions}))
+  (let [new-knots (move-knots knots dir)
+        new-tail-positions (conj tail-positions (last new-knots))]
+    {:knots new-knots :tail-positions new-tail-positions}))
 
 (defn move-rope [state move]
   (let [[dir count-str] (str/split move #" +")
