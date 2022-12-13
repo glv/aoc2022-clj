@@ -56,7 +56,7 @@
         divider-indexes (->> packet-pairs
                              (apply concat dividers)
                              (sort packet-compare)
-                             (keep-indexed (fn [i p] (when (some (partial = p) dividers)
+                             (keep-indexed (fn [i p] (when (some #(= p %) dividers)
                                                        (inc i)))))]
     (println "star 1:" (reduce + proper-pair-indexes))
     (println "star 2:" (reduce * divider-indexes))))
