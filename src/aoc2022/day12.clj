@@ -72,7 +72,7 @@
   (loop [grid (assoc-in grid [:cells (cell-index grid end) :step-num] 0)
          path-length 1
          [frontier & frontiers] [[(grid-cell grid end)]]]
-    (if (some found-fn frontier)  ; #(= start (:coord %))
+    (if (some found-fn frontier)
       (dec path-length)
 
       (let [next-frontier (process-frontier grid frontier path-length)]
