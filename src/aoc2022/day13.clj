@@ -52,6 +52,11 @@
                           (filter non-delim-group?)
                           (map read-packet-pair))
         proper-pair-indexes (keep-indexed proper-pair? packet-pairs)
-        ]
+        dividers [[[2]] [[6]]]
+        divider-indexes (->> packet-pairs
+                             (apply concat dividers)
+                             (sort packet-compare)
+                             (keep-indexed (fn [i p] (when (some (partial = p) dividers)
+                                                       (inc i)))))]
     (println "star 1:" (reduce + proper-pair-indexes))
-    (println "star 2:")))
+    (println "star 2:" (reduce * divider-indexes))))
