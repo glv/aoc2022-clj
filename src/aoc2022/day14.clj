@@ -117,6 +117,7 @@
               :abyss
               (condp = (:v (grid-cell grid coord))
                 \. :free
+                \+ :blocked
                 \# :blocked
                 \o :blocked)))
           (next-sand-pos [grid [x y :as sand-pos]]
@@ -134,21 +135,44 @@
         (condp = status
           :blocked (-> grid
                        (assoc-in [:cells (cell-index grid sand-pos) :v] \o)
-                       (update :sand-units inc))
+                       (update :sand-units inc)
+                       (assoc :full-up (= sand-pos [500 0])))
           :abyss (assoc grid :abyss-reached true)
           :free (recur grid next-pos))))))
 
 (defn trickle-sand [grid]
   (->> grid
        (iterate trickle-sand-unit)
-       (take-while #(not (:abyss-reached %)))
-       last))
+       (drop-while #(and (not (:abyss-reached %))
+                         (not (:full-up %))))
+       first))
+
+(defn add-floor [{:keys [cells cols rows ymax] :as grid}]
+  (let [new-cells (vec (concat cells
+                               (repeat cols {:v \.})
+                               (repeat cols {:v \#})))]
+    (assoc grid
+           :cells new-cells
+           :rows (+ 2 rows)
+           :ymax (+ 2 ymax)
+           :floored true
+           :full-up false)))
 
 (defn run [args]
-  (let [dims (find-dims input-lines)
-        grid (build-grid dims)
-        grid (add-paths grid input-lines)
-        grid (trickle-sand grid)]
-    (print-grid grid)
-    (println "star 1:" (:sand-units grid))
-    (println "star 2:")))
+  (let [{:keys [xmin xmax ymin ymax] :as dims} (find-dims input-lines)
+        grid1 (-> dims
+                  build-grid
+                  (add-paths input-lines)
+                  trickle-sand)
+        rows (- ymax ymin)
+        new-xmin (- xmin (+ 5 rows))
+        new-xmax (+ xmax (+ 5 rows))
+        grid2 (-> dims
+                  (assoc :xmin new-xmin :xmax new-xmax)
+                  build-grid
+                  (add-paths input-lines)
+                  add-floor
+                  trickle-sand)]
+    (print-grid grid1)
+    (println "star 1:" (:sand-units grid1))
+    (println "star 2:" (:sand-units grid2))))
