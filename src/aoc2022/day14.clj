@@ -34,27 +34,24 @@
       (> x xmax)
       (> y ymax)))
 
-;; (defn neighbor [grid cell direction]
-;;   (let [[col row] (:coord cell)
-;;         [mcol mrow] (map dec (:size grid))]
-;;     (case direction
-;;       :north (when (> row 0) [col (dec row)])
-;;       :west  (when (> col 0) [(dec col) row])
-;;       :south (when (< row mrow) [col (inc row)])
-;;       :east  (when (< col mcol) [(inc col) row]))))
-;;
-;; (defn neighbors
-;;   ([grid cell] (neighbors grid cell [:north :south :east :west]))
-;;   ([grid cell directions]
-;;    (filter identity (map #(neighbor grid cell %) directions))))
-
 (defn print-grid [{:keys [xmin xmax cells] :as grid}]
-  (let [row-len (inc (- xmax xmin))]
+  (let [row-len (inc (- xmax xmin))
+        label-xs (into #{} (concat [xmin]
+                                   (filter #(= 0 (mod % 10))
+                                           (range (inc xmin) xmax))
+                                   [xmax]))]
+    (doseq [m [100 10 1]]
+      (println (apply str "    " (for [x (range xmin (inc xmax))]
+                                   (if (contains? label-xs x)
+                                     (mod (int (/ x m)) 10)
+                                     " ")
+                                   )))
+      )
     (doseq [[i row] (map vector (range) (->> cells
                                              (partition row-len)
                                              (map #(map :v %))
                                              (map str/join)))]
-      (println i row))))
+      (println (format "%3d" i) row))))
 
 (defn coords-from-line [line]
   (let [point-strs (str/split line #" -> ")]
@@ -67,7 +64,9 @@
   (let [cols (inc (- xmax xmin))
         rows (inc (- ymax ymin))
         cells (vec (repeat (* cols rows) {:v \.}))]
-    (assoc state :cols cols :rows rows :cells cells)))
+    (assoc state
+           :cols cols :rows rows :cells cells
+           :sand-units 0 :abyss-reached false)))
 
 (defn expand-dims [{:keys [xmin xmax ymin ymax] :as state} line]
   (letfn [(newdim [minormax pluck-fn dim coords]
@@ -124,22 +123,32 @@
             (let [candidates [[x (inc y)]
                               [(dec x) (inc y)]
                               [(inc x) (inc y)]]
-                  statuses (map candidate-status candidates)
-                  winner (->> statuses
-                              (map ))]
-              ))
-          ]
+                  statuses (map (partial candidate-status grid) candidates)]
+              (or (->> statuses
+                       (map vector candidates)
+                       (filter #(not= :blocked (second %)))
+                       first)
+                  [nil :blocked])))]
     (loop [grid grid sand-pos [500 0]]
-      )))
+      (let [[next-pos status] (next-sand-pos grid sand-pos)]
+        (condp = status
+          :blocked (-> grid
+                       (assoc-in [:cells (cell-index grid sand-pos) :v] \o)
+                       (update :sand-units inc))
+          :abyss (assoc grid :abyss-reached true)
+          :free (recur grid next-pos))))))
 
 (defn trickle-sand [grid]
-  (assoc grid :sand-units 0))
+  (->> grid
+       (iterate trickle-sand-unit)
+       (take-while #(not (:abyss-reached %)))
+       last))
 
 (defn run [args]
   (let [dims (find-dims input-lines)
         grid (build-grid dims)
         grid (add-paths grid input-lines)
-        grid (trickle-sand grid)
-        _ (print-grid grid)]
+        grid (trickle-sand grid)]
+    (print-grid grid)
     (println "star 1:" (:sand-units grid))
     (println "star 2:")))
